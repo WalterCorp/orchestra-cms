@@ -2,24 +2,20 @@
 import { defineType, defineField } from "sanity";
 
 /**
- * Reusable Portable Text config with a custom "highlight" decorator.
- * In the editor, you select text and click "Highlight" => frontend renders it in sky-400.
+ * Portable Text with a custom "highlight" decorator.
+ * In the editor: select text => click Highlight => frontend renders sky-400.
  */
-const portableTextWithHighlight = defineField({
-  name: "portableTextWithHighlight",
-  title: "Portable Text",
+const portableTextWithHighlight = {
   type: "array",
   of: [
     {
       type: "block",
       marks: {
-        decorators: [
-          { title: "Highlight", value: "highlight" }, // <-- THE KEY
-        ],
+        decorators: [{ title: "Highlight", value: "highlight" }],
       },
     },
   ],
-});
+};
 
 export const page = defineType({
   name: "page",
@@ -28,7 +24,7 @@ export const page = defineType({
 
   fields: [
     // --------------------------------------------------
-    // Base fields (génériques)
+    // Base fields
     // --------------------------------------------------
     defineField({
       name: "title",
@@ -45,24 +41,21 @@ export const page = defineType({
       validation: (Rule) => Rule.required(),
     }),
 
-    // Portable Text générique (page CMS simple)
     defineField({
-      name: "content",
-      title: "Content",
-      type: portableTextWithHighlight.type,
-      of: portableTextWithHighlight.of,
+      name: "seoTitle",
+      title: "SEO Title",
+      type: "string",
     }),
 
-    defineField({ name: "seoTitle", title: "SEO Title", type: "string" }),
-    defineField({ name: "seoDescription", title: "SEO Description", type: "text" }),
+    defineField({
+      name: "seoDescription",
+      title: "SEO Description",
+      type: "text",
+    }),
 
-    // ==================================================
-    // ORCHESTRA — Champs structurés (Page Cabinet)
-    // ==================================================
-
-    // ---------------------------
-    // HERO (Cabinet)
-    // ---------------------------
+    // --------------------------------------------------
+    // CABINET — Hero
+    // --------------------------------------------------
     defineField({
       name: "hero",
       title: "Hero",
@@ -81,68 +74,53 @@ export const page = defineType({
           description: "Ex: Conseil augmenté par l’IA",
         }),
 
-        // --- Legacy (keep for now) ---
-        defineField({
-          name: "title",
-          title: "Hero Title (legacy string)",
-          type: "string",
-          description: "Ancien champ. On migre progressivement vers le champ rich.",
-        }),
-        defineField({
-          name: "titleHighlights",
-          title: "Title highlights (legacy)",
-          type: "array",
-          of: [{ type: "string" }],
-        }),
-        defineField({
-          name: "description",
-          title: "Hero Description (legacy text)",
-          type: "text",
-        }),
-        defineField({
-          name: "descriptionHighlights",
-          title: "Description highlights (legacy)",
-          type: "array",
-          of: [{ type: "string" }],
-        }),
-
-        // --- New (recommended) ---
         defineField({
           name: "titleRich",
           title: "Hero Title (rich)",
-          type: portableTextWithHighlight.type,
-          of: portableTextWithHighlight.of,
-          description: "Recommandé : surlignage directement dans Sanity (Highlight).",
+          ...portableTextWithHighlight,
+          validation: (Rule) => Rule.required(),
         }),
+
         defineField({
           name: "descriptionRich",
           title: "Hero Description (rich)",
-          type: portableTextWithHighlight.type,
-          of: portableTextWithHighlight.of,
-          description: "Recommandé : surlignage directement dans Sanity (Highlight).",
+          ...portableTextWithHighlight,
+          validation: (Rule) => Rule.required(),
         }),
 
-        defineField({ name: "primaryCtaLabel", title: "Primary CTA label", type: "string" }),
+        defineField({
+          name: "primaryCtaLabel",
+          title: "Primary CTA label",
+          type: "string",
+          validation: (Rule) => Rule.required(),
+        }),
         defineField({
           name: "primaryCtaHref",
           title: "Primary CTA href",
           type: "string",
           description: 'Ex: "/methode-orchestra"',
+          validation: (Rule) => Rule.required(),
         }),
 
-        defineField({ name: "secondaryCtaLabel", title: "Secondary CTA label", type: "string" }),
+        defineField({
+          name: "secondaryCtaLabel",
+          title: "Secondary CTA label",
+          type: "string",
+          validation: (Rule) => Rule.required(),
+        }),
         defineField({
           name: "secondaryCtaHref",
           title: "Secondary CTA href",
           type: "string",
           description: 'Ex: "/contact"',
+          validation: (Rule) => Rule.required(),
         }),
       ],
     }),
 
-    // ---------------------------
-    // 3 sections Cabinet
-    // ---------------------------
+    // --------------------------------------------------
+    // CABINET — 3 sections
+    // --------------------------------------------------
     defineField({
       name: "cabinetSections",
       title: "Cabinet — Sections",
@@ -153,19 +131,23 @@ export const page = defineType({
           title: "Vision du Cabinet",
           type: "object",
           fields: [
-            defineField({ name: "title", title: "Title (legacy string)", type: "string" }),
             defineField({
               name: "titleRich",
               title: "Title (rich)",
-              type: portableTextWithHighlight.type,
-              of: portableTextWithHighlight.of,
+              ...portableTextWithHighlight,
+              validation: (Rule) => Rule.required(),
             }),
-            defineField({ name: "emoji", title: "Emoji", type: "string" }),
+            defineField({
+              name: "emoji",
+              title: "Emoji",
+              type: "string",
+              validation: (Rule) => Rule.required(),
+            }),
             defineField({
               name: "content",
-              title: "Content",
-              type: portableTextWithHighlight.type,
-              of: portableTextWithHighlight.of,
+              title: "Content (rich)",
+              ...portableTextWithHighlight,
+              validation: (Rule) => Rule.required(),
             }),
           ],
         }),
@@ -175,19 +157,23 @@ export const page = defineType({
           title: "Place de l’humain",
           type: "object",
           fields: [
-            defineField({ name: "title", title: "Title (legacy string)", type: "string" }),
             defineField({
               name: "titleRich",
               title: "Title (rich)",
-              type: portableTextWithHighlight.type,
-              of: portableTextWithHighlight.of,
+              ...portableTextWithHighlight,
+              validation: (Rule) => Rule.required(),
             }),
-            defineField({ name: "emoji", title: "Emoji", type: "string" }),
+            defineField({
+              name: "emoji",
+              title: "Emoji",
+              type: "string",
+              validation: (Rule) => Rule.required(),
+            }),
             defineField({
               name: "content",
-              title: "Content",
-              type: portableTextWithHighlight.type,
-              of: portableTextWithHighlight.of,
+              title: "Content (rich)",
+              ...portableTextWithHighlight,
+              validation: (Rule) => Rule.required(),
             }),
           ],
         }),
@@ -197,53 +183,75 @@ export const page = defineType({
           title: "Usage encadré de l’IA",
           type: "object",
           fields: [
-            defineField({ name: "title", title: "Title (legacy string)", type: "string" }),
             defineField({
               name: "titleRich",
               title: "Title (rich)",
-              type: portableTextWithHighlight.type,
-              of: portableTextWithHighlight.of,
+              ...portableTextWithHighlight,
+              validation: (Rule) => Rule.required(),
             }),
-            defineField({ name: "emoji", title: "Emoji", type: "string" }),
+            defineField({
+              name: "emoji",
+              title: "Emoji",
+              type: "string",
+              validation: (Rule) => Rule.required(),
+            }),
             defineField({
               name: "content",
-              title: "Content",
-              type: portableTextWithHighlight.type,
-              of: portableTextWithHighlight.of,
+              title: "Content (rich)",
+              ...portableTextWithHighlight,
+              validation: (Rule) => Rule.required(),
             }),
           ],
         }),
       ],
     }),
 
-    // ---------------------------
-    // CTA bloc Cabinet
-    // ---------------------------
+    // --------------------------------------------------
+    // CABINET — CTA block
+    // --------------------------------------------------
     defineField({
       name: "cabinetCta",
       title: "Cabinet — Bloc CTA",
       type: "object",
       fields: [
-        defineField({ name: "title", title: "Title (legacy string)", type: "string" }),
         defineField({
           name: "titleRich",
           title: "Title (rich)",
-          type: portableTextWithHighlight.type,
-          of: portableTextWithHighlight.of,
+          ...portableTextWithHighlight,
+          validation: (Rule) => Rule.required(),
         }),
-
-        defineField({ name: "text", title: "Text (legacy)", type: "text" }),
         defineField({
           name: "textRich",
           title: "Text (rich)",
-          type: portableTextWithHighlight.type,
-          of: portableTextWithHighlight.of,
+          ...portableTextWithHighlight,
+          validation: (Rule) => Rule.required(),
         }),
 
-        defineField({ name: "primaryLabel", title: "Primary button label", type: "string" }),
-        defineField({ name: "primaryHref", title: "Primary button href", type: "string" }),
-        defineField({ name: "secondaryLabel", title: "Secondary button label", type: "string" }),
-        defineField({ name: "secondaryHref", title: "Secondary button href", type: "string" }),
+        defineField({
+          name: "primaryLabel",
+          title: "Primary button label",
+          type: "string",
+          validation: (Rule) => Rule.required(),
+        }),
+        defineField({
+          name: "primaryHref",
+          title: "Primary button href",
+          type: "string",
+          validation: (Rule) => Rule.required(),
+        }),
+
+        defineField({
+          name: "secondaryLabel",
+          title: "Secondary button label",
+          type: "string",
+          validation: (Rule) => Rule.required(),
+        }),
+        defineField({
+          name: "secondaryHref",
+          title: "Secondary button href",
+          type: "string",
+          validation: (Rule) => Rule.required(),
+        }),
       ],
     }),
   ],
