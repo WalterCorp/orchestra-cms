@@ -1,35 +1,71 @@
 // schemaTypes/page.ts
-import { defineType, defineField } from "sanity";
+import { defineField, defineType } from "sanity";
 
 /**
- * Portable Text with a custom "highlight" decorator.
- * In the editor: select text => click Highlight => frontend renders sky-400.
+ * ============================================================
+ * PAGE (Type unique)
+ * ============================================================
+ * Un seul type "page" pour tout le site (réplicabilité).
+ * - Champs communs (SEO + Hero)
+ * - Sections spécifiques (Accueil, Cabinet...)
+ * - Studio lisible via fieldsets repliables
  */
-const portableTextWithHighlight = {
-  type: "array",
-  of: [
-    {
-      type: "block",
-      marks: {
-        decorators: [{ title: "Highlight", value: "highlight" }],
-      },
-    },
-  ],
+
+/**
+ * Portable Text block réutilisable
+ * - Ajoute le bouton "Highlight" dans le Studio
+ * - Le front mappe le mark "highlight" -> texte sky
+ */
+const richTextBlock = {
+  type: "block",
+  marks: {
+    decorators: [{ title: "Highlight", value: "highlight" }],
+  },
 };
 
 export const page = defineType({
   name: "page",
-  title: "Page",
+  title: "📄 Page",
   type: "document",
 
+  // ============================================================
+  // FIELDSETS (organisation visuelle Studio)
+  // ============================================================
+  fieldsets: [
+    {
+      name: "identity",
+      title: "🧭 Identité & SEO",
+      options: { collapsible: true, collapsed: false },
+    },
+    {
+      name: "hero",
+      title: "🚀 Hero (commun)",
+      options: { collapsible: true, collapsed: false },
+    },
+    {
+      name: "home",
+      title: "🏠 Accueil",
+      options: { collapsible: true, collapsed: true },
+    },
+    {
+      name: "cabinet",
+      title: "🏛️ Cabinet",
+      options: { collapsible: true, collapsed: true },
+    },
+  ],
+
   fields: [
-    // --------------------------------------------------
-    // Base fields
-    // --------------------------------------------------
+    // ============================================================
+    // 🧭 IDENTITÉ & SEO
+    // ============================================================
+
     defineField({
       name: "title",
-      title: "Title",
+      title: "Titre interne",
       type: "string",
+      fieldset: "identity",
+      description:
+        "Titre interne pour l’admin (peut être différent du titre affiché sur la page).",
       validation: (Rule) => Rule.required(),
     }),
 
@@ -37,221 +73,316 @@ export const page = defineType({
       name: "slug",
       title: "Slug",
       type: "slug",
-      options: { source: "title", maxLength: 96 },
+      fieldset: "identity",
+      description: "Identifiant URL unique (ex : 'accueil', 'cabinet').",
+      options: { source: "title" },
       validation: (Rule) => Rule.required(),
     }),
 
     defineField({
       name: "seoTitle",
-      title: "SEO Title",
+      title: "SEO — Title",
       type: "string",
+      fieldset: "identity",
+      description: "Balise <title>. Laisser vide si non utilisé.",
     }),
 
     defineField({
       name: "seoDescription",
-      title: "SEO Description",
+      title: "SEO — Description",
       type: "text",
+      rows: 3,
+      fieldset: "identity",
+      description: "Meta description. Laisser vide si non utilisé.",
     }),
 
-    // --------------------------------------------------
-    // CABINET — Hero
-    // --------------------------------------------------
+    // ============================================================
+    // 🚀 HERO (commun à toutes les pages)
+    // ============================================================
+
     defineField({
       name: "hero",
-      title: "Hero",
+      title: "Bloc Hero",
       type: "object",
+      fieldset: "hero",
       fields: [
         defineField({
           name: "badgeEmoji",
-          title: "Badge Emoji",
+          title: "Badge — Emoji",
           type: "string",
-          description: "Ex: 🤖",
         }),
         defineField({
           name: "badgeText",
-          title: "Badge Text",
+          title: "Badge — Texte",
           type: "string",
-          description: "Ex: Conseil augmenté par l’IA",
         }),
 
         defineField({
           name: "titleRich",
-          title: "Hero Title (rich)",
-          ...portableTextWithHighlight,
-          validation: (Rule) => Rule.required(),
+          title: "Titre (rich)",
+          type: "array",
+          of: [richTextBlock],
         }),
 
         defineField({
           name: "descriptionRich",
-          title: "Hero Description (rich)",
-          ...portableTextWithHighlight,
-          validation: (Rule) => Rule.required(),
+          title: "Description (rich)",
+          type: "array",
+          of: [richTextBlock],
         }),
 
         defineField({
           name: "primaryCtaLabel",
-          title: "Primary CTA label",
+          title: "CTA primaire — label",
           type: "string",
-          validation: (Rule) => Rule.required(),
         }),
         defineField({
           name: "primaryCtaHref",
-          title: "Primary CTA href",
+          title: "CTA primaire — lien",
           type: "string",
-          description: 'Ex: "/methode-orchestra"',
-          validation: (Rule) => Rule.required(),
         }),
-
         defineField({
           name: "secondaryCtaLabel",
-          title: "Secondary CTA label",
+          title: "CTA secondaire — label",
           type: "string",
-          validation: (Rule) => Rule.required(),
         }),
         defineField({
           name: "secondaryCtaHref",
-          title: "Secondary CTA href",
+          title: "CTA secondaire — lien",
           type: "string",
-          description: 'Ex: "/contact"',
-          validation: (Rule) => Rule.required(),
         }),
       ],
     }),
 
-    // --------------------------------------------------
-    // CABINET — 3 sections
-    // --------------------------------------------------
+    // ============================================================
+    // 🏠 ACCUEIL
+    // ============================================================
+
     defineField({
-      name: "cabinetSections",
-      title: "Cabinet — Sections",
+      name: "homeSections",
+      title: "Sections Accueil",
       type: "object",
+      fieldset: "home",
       fields: [
+        // Notre approche
         defineField({
-          name: "vision",
-          title: "Vision du Cabinet",
+          name: "approach",
+          title: "✨ Notre approche",
           type: "object",
           fields: [
             defineField({
               name: "titleRich",
-              title: "Title (rich)",
-              ...portableTextWithHighlight,
-              validation: (Rule) => Rule.required(),
-            }),
-            defineField({
-              name: "emoji",
-              title: "Emoji",
-              type: "string",
-              validation: (Rule) => Rule.required(),
+              title: "Titre (rich)",
+              type: "array",
+              of: [richTextBlock],
             }),
             defineField({
               name: "content",
-              title: "Content (rich)",
-              ...portableTextWithHighlight,
-              validation: (Rule) => Rule.required(),
+              title: "Texte (rich)",
+              type: "array",
+              of: [richTextBlock],
             }),
           ],
         }),
 
+        // ORCHESTRA — noyau IA
         defineField({
-          name: "human",
-          title: "Place de l’humain",
+          name: "orchestraCore",
+          title: "🤖 ORCHESTRA — Noyau IA",
           type: "object",
           fields: [
             defineField({
               name: "titleRich",
-              title: "Title (rich)",
-              ...portableTextWithHighlight,
-              validation: (Rule) => Rule.required(),
-            }),
-            defineField({
-              name: "emoji",
-              title: "Emoji",
-              type: "string",
-              validation: (Rule) => Rule.required(),
+              title: "Titre (rich)",
+              type: "array",
+              of: [richTextBlock],
             }),
             defineField({
               name: "content",
-              title: "Content (rich)",
-              ...portableTextWithHighlight,
-              validation: (Rule) => Rule.required(),
+              title: "Texte (rich)",
+              type: "array",
+              of: [richTextBlock],
+            }),
+
+            defineField({
+              name: "pillars",
+              title: "🧱 Piliers (4)",
+              type: "array",
+              description: "Exactement 4 éléments pour conserver le layout.",
+              of: [
+                {
+                  type: "object",
+                  fields: [
+                    defineField({
+                      name: "icon",
+                      title: "Icône (emoji)",
+                      type: "string",
+                      validation: (Rule) => Rule.required(),
+                    }),
+                    defineField({
+                      name: "line1",
+                      title: "Ligne 1",
+                      type: "string",
+                      validation: (Rule) => Rule.required(),
+                    }),
+                    defineField({
+                      name: "line2",
+                      title: "Ligne 2",
+                      type: "string",
+                      validation: (Rule) => Rule.required(),
+                    }),
+                  ],
+                },
+              ],
+              validation: (Rule) => Rule.min(4).max(4),
             }),
           ],
         }),
 
+        // La place de l'humain
         defineField({
-          name: "ai",
-          title: "Usage encadré de l’IA",
+          name: "humanPlace",
+          title: "👤 La place de l’humain",
           type: "object",
           fields: [
             defineField({
               name: "titleRich",
-              title: "Title (rich)",
-              ...portableTextWithHighlight,
-              validation: (Rule) => Rule.required(),
+              title: "Titre (rich)",
+              type: "array",
+              of: [richTextBlock],
             }),
             defineField({
-              name: "emoji",
-              title: "Emoji",
-              type: "string",
-              validation: (Rule) => Rule.required(),
+              name: "intro",
+              title: "Intro (rich)",
+              type: "array",
+              of: [richTextBlock],
             }),
+
             defineField({
-              name: "content",
-              title: "Content (rich)",
-              ...portableTextWithHighlight,
-              validation: (Rule) => Rule.required(),
+              name: "cards",
+              title: "🃏 Cartes (3)",
+              description: "Exactement 3 éléments pour conserver le layout.",
+              type: "array",
+              of: [
+                {
+                  type: "object",
+                  fields: [
+                    defineField({
+                      name: "icon",
+                      title: "Icône",
+                      type: "string",
+                      validation: (Rule) => Rule.required(),
+                    }),
+                    defineField({
+                      name: "title",
+                      title: "Titre",
+                      type: "string",
+                      validation: (Rule) => Rule.required(),
+                    }),
+                    defineField({
+                      name: "text",
+                      title: "Texte",
+                      type: "text",
+                      rows: 3,
+                      validation: (Rule) => Rule.required(),
+                    }),
+                  ],
+                },
+              ],
+              validation: (Rule) => Rule.min(3).max(3),
+            }),
+
+            defineField({
+              name: "outro",
+              title: "Texte final (rich)",
+              type: "array",
+              of: [richTextBlock],
             }),
           ],
         }),
       ],
     }),
 
-    // --------------------------------------------------
-    // CABINET — CTA block
-    // --------------------------------------------------
     defineField({
-      name: "cabinetCta",
-      title: "Cabinet — Bloc CTA",
+      name: "homeCta",
+      title: "🎯 CTA final Accueil",
       type: "object",
+      fieldset: "home",
       fields: [
         defineField({
           name: "titleRich",
-          title: "Title (rich)",
-          ...portableTextWithHighlight,
-          validation: (Rule) => Rule.required(),
+          title: "Titre (rich)",
+          type: "array",
+          of: [richTextBlock],
         }),
         defineField({
           name: "textRich",
-          title: "Text (rich)",
-          ...portableTextWithHighlight,
-          validation: (Rule) => Rule.required(),
+          title: "Texte (rich)",
+          type: "array",
+          of: [richTextBlock],
         }),
+        defineField({ name: "primaryLabel", title: "CTA primaire — label", type: "string" }),
+        defineField({ name: "primaryHref", title: "CTA primaire — lien", type: "string" }),
+        defineField({ name: "secondaryLabel", title: "CTA secondaire — label", type: "string" }),
+        defineField({ name: "secondaryHref", title: "CTA secondaire — lien", type: "string" }),
+      ],
+    }),
 
-        defineField({
-          name: "primaryLabel",
-          title: "Primary button label",
-          type: "string",
-          validation: (Rule) => Rule.required(),
-        }),
-        defineField({
-          name: "primaryHref",
-          title: "Primary button href",
-          type: "string",
-          validation: (Rule) => Rule.required(),
-        }),
+    // ============================================================
+    // 🏛️ CABINET
+    // ============================================================
 
+    defineField({
+      name: "cabinetSections",
+      title: "Sections Cabinet",
+      type: "object",
+      fieldset: "cabinet",
+      fields: [
         defineField({
-          name: "secondaryLabel",
-          title: "Secondary button label",
-          type: "string",
-          validation: (Rule) => Rule.required(),
+          name: "vision",
+          title: "👁️ Vision",
+          type: "object",
+          fields: [
+            defineField({ name: "titleRich", title: "Titre (rich)", type: "array", of: [richTextBlock] }),
+            defineField({ name: "emoji", title: "Emoji", type: "string" }),
+            defineField({ name: "content", title: "Texte (rich)", type: "array", of: [richTextBlock] }),
+          ],
         }),
         defineField({
-          name: "secondaryHref",
-          title: "Secondary button href",
-          type: "string",
-          validation: (Rule) => Rule.required(),
+          name: "human",
+          title: "🤝 Humain",
+          type: "object",
+          fields: [
+            defineField({ name: "titleRich", title: "Titre (rich)", type: "array", of: [richTextBlock] }),
+            defineField({ name: "emoji", title: "Emoji", type: "string" }),
+            defineField({ name: "content", title: "Texte (rich)", type: "array", of: [richTextBlock] }),
+          ],
         }),
+        defineField({
+          name: "ai",
+          title: "🧠 IA",
+          type: "object",
+          fields: [
+            defineField({ name: "titleRich", title: "Titre (rich)", type: "array", of: [richTextBlock] }),
+            defineField({ name: "emoji", title: "Emoji", type: "string" }),
+            defineField({ name: "content", title: "Texte (rich)", type: "array", of: [richTextBlock] }),
+          ],
+        }),
+      ],
+    }),
+
+    defineField({
+      name: "cabinetCta",
+      title: "🎯 CTA final Cabinet",
+      type: "object",
+      fieldset: "cabinet",
+      fields: [
+        defineField({ name: "titleRich", title: "Titre (rich)", type: "array", of: [richTextBlock] }),
+        defineField({ name: "textRich", title: "Texte (rich)", type: "array", of: [richTextBlock] }),
+        defineField({ name: "primaryLabel", title: "CTA primaire — label", type: "string" }),
+        defineField({ name: "primaryHref", title: "CTA primaire — lien", type: "string" }),
+        defineField({ name: "secondaryLabel", title: "CTA secondaire — label", type: "string" }),
+        defineField({ name: "secondaryHref", title: "CTA secondaire — lien", type: "string" }),
       ],
     }),
   ],
