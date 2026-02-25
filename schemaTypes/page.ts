@@ -94,6 +94,13 @@ export const page = defineType({
       title: "❓ FAQ",
       options: { collapsible: true, collapsed: true },
     },
+
+    // ✅ Contact
+    {
+      name: "contact",
+      title: "✉️ Contact",
+      options: { collapsible: true, collapsed: true },
+    },
   ],
 
   fields: [
@@ -719,7 +726,6 @@ export const page = defineType({
       type: "object",
       fieldset: "fonctionnement",
       fields: [
-        // 1) Principles
         defineField({
           name: "principles",
           title: "🧱 Principes de notre approche",
@@ -756,7 +762,6 @@ export const page = defineType({
           ],
         }),
 
-        // 2) Process (✅ version finale stable)
         defineField({
           name: "process",
           title: "🧭 Déroulement d’un accompagnement",
@@ -778,14 +783,12 @@ export const page = defineType({
                 {
                   type: "object",
                   fields: [
-                    // icon optionnel (évite emojis fantômes)
                     defineField({
                       name: "icon",
                       title: "Icône (emoji) — optionnel",
                       type: "string",
                     }),
 
-                    // titre contrôlé (layout)
                     defineField({
                       name: "titleLines",
                       title: "Titre (lignes)",
@@ -795,7 +798,6 @@ export const page = defineType({
                       description: "Chaque élément = une ligne (max 2).",
                     }),
 
-                    // bloc haut
                     defineField({
                       name: "topRich",
                       title: "Bloc haut (rich) — optionnel",
@@ -803,7 +805,6 @@ export const page = defineType({
                       of: [richTextBlock],
                     }),
 
-                    // label (rich)
                     defineField({
                       name: "labelRich",
                       title: "Label (rich) — optionnel",
@@ -813,7 +814,6 @@ export const page = defineType({
                         "Ex: “ORCHESTRA intervient pour :” ou “Les experts humains sont là pour :” (support Highlight).",
                     }),
 
-                    // bloc bas
                     defineField({
                       name: "bottomRich",
                       title: "Bloc bas (rich) — optionnel",
@@ -821,7 +821,6 @@ export const page = defineType({
                       of: [richTextBlock],
                     }),
 
-                    // outro (rich)
                     defineField({
                       name: "outroRich",
                       title: "Outro (rich) — optionnel",
@@ -830,7 +829,6 @@ export const page = defineType({
                     }),
                   ],
 
-                  // ✅ Validation : éviter carte vide
                   validation: (Rule) =>
                     Rule.custom((value: any) => {
                       if (!value) return true;
@@ -853,7 +851,6 @@ export const page = defineType({
           ],
         }),
 
-        // 3) Orchestra place
         defineField({
           name: "orchestraPlace",
           title: "🤖 Place d’ORCHESTRA dans le processus",
@@ -867,11 +864,9 @@ export const page = defineType({
               of: [richTextBlock],
             }),
 
-            // ✅ label rich (support highlight)
             defineField({
               name: "labelRich",
-              title:
-                "Label (rich) (ex: Chaque production issue d’ORCHESTRA est :)",
+              title: "Label (rich) (ex: Chaque production issue d’ORCHESTRA est :)",
               type: "array",
               of: [richTextBlock],
             }),
@@ -894,7 +889,6 @@ export const page = defineType({
           ],
         }),
 
-        // 4) Client benefits
         defineField({
           name: "clientBenefits",
           title: "📈 Ce que cela change pour le client",
@@ -928,7 +922,7 @@ export const page = defineType({
     }),
 
     // ============================================================
-    // EXPERTISES  ✅ AJOUT COMPLET
+    // EXPERTISES
     // ============================================================
     defineField({
       name: "expertisesSections",
@@ -936,7 +930,6 @@ export const page = defineType({
       type: "object",
       fieldset: "expertises",
       fields: [
-        // 1) Approach
         defineField({
           name: "approach",
           title: "✨ Notre approche",
@@ -952,7 +945,6 @@ export const page = defineType({
           ],
         }),
 
-        // 2) Domains (BigCards)
         defineField({
           name: "domains",
           title: "🧱 Domaines d’expertise",
@@ -1063,7 +1055,6 @@ export const page = defineType({
           ],
         }),
 
-        // 3) Orchestra support
         defineField({
           name: "orchestraSupport",
           title: "🤖 Comment ORCHESTRA soutient",
@@ -1106,7 +1097,6 @@ export const page = defineType({
           ],
         }),
 
-        // 4) Audiences
         defineField({
           name: "audiences",
           title: "👥 Pour qui",
@@ -1140,7 +1130,7 @@ export const page = defineType({
     }),
 
     // ============================================================
-    // FAQ  ✅ AJOUT
+    // FAQ
     // ============================================================
     defineField({
       name: "faqSections",
@@ -1206,6 +1196,75 @@ export const page = defineType({
               type: "array",
               of: [richTextBlock],
               validation: (Rule) => Rule.required().min(1),
+            }),
+          ],
+        }),
+      ],
+    }),
+
+    // ============================================================
+    // CONTACT ✅ AJOUT
+    // ============================================================
+    defineField({
+      name: "contactSections",
+      title: "Sections Contact",
+      type: "object",
+      fieldset: "contact",
+      fields: [
+        // 1) Bloc "Formulaire" (H2 + intro)
+        defineField({
+          name: "form",
+          title: "📝 Formulaire — bloc principal",
+          type: "object",
+          fields: [
+            sectionTitleRichFieldRequired,
+            defineField({
+              name: "textRich",
+              title: "Texte (rich)",
+              type: "array",
+              of: [richTextBlock],
+              validation: (Rule) => Rule.required().min(1),
+            }),
+          ],
+        }),
+
+        // 2) Réassurance (H2 + 3 cards + lien)
+        defineField({
+          name: "reassurance",
+          title: "🛡️ Réassurance — après formulaire",
+          type: "object",
+          fields: [
+            sectionTitleRichFieldRequired,
+
+            defineField({
+              name: "cards",
+              title: "🃏 Cartes (3)",
+              type: "array",
+              of: [
+                {
+                  type: "object",
+                  fields: [
+                    defineField({
+                      name: "title",
+                      title: "Titre (string)",
+                      type: "string",
+                      validation: (Rule) => Rule.required().min(3),
+                    }),
+                  ],
+                },
+              ],
+              validation: (Rule) => Rule.required().min(3).max(3),
+            }),
+
+            defineField({
+              name: "linkLabel",
+              title: "Lien — label (optionnel)",
+              type: "string",
+            }),
+            defineField({
+              name: "linkHref",
+              title: "Lien — href (optionnel)",
+              type: "string",
             }),
           ],
         }),
