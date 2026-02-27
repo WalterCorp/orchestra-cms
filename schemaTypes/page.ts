@@ -42,7 +42,32 @@ const richTextBlockBody = {
       { title: "Italique", value: "em" },
       { title: "Mise en valeur (brand color)", value: "highlight" },
     ],
-    annotations: [{ type: "link" }],
+    // ✅ FIX: l'annotation "link" doit être définie inline (Sanity n'a pas de type global "link" par défaut)
+    annotations: [
+      defineField({
+        name: "link",
+        title: "Lien",
+        type: "object",
+        fields: [
+          defineField({
+            name: "href",
+            title: "URL",
+            type: "url",
+            validation: (Rule) =>
+              Rule.required().uri({
+                scheme: ["http", "https", "mailto", "tel"],
+                allowRelative: true,
+              }),
+          }),
+          defineField({
+            name: "blank",
+            title: "Ouvrir dans un nouvel onglet",
+            type: "boolean",
+            initialValue: true,
+          }),
+        ],
+      }),
+    ],
   },
   lists: [
     { title: "Liste à puces", value: "bullet" },
@@ -90,7 +115,8 @@ const requireAtLeastOneContent = (Rule: any) =>
   Rule.custom((value: any) => {
     if (!value) return true;
     const hasTop = Array.isArray(value.topRich) && value.topRich.length > 0;
-    const hasBottom = Array.isArray(value.bottomRich) && value.bottomRich.length > 0;
+    const hasBottom =
+      Array.isArray(value.bottomRich) && value.bottomRich.length > 0;
     const hasOutro = Array.isArray(value.outroRich) && value.outroRich.length > 0;
     return hasTop || hasBottom || hasOutro
       ? true
@@ -256,7 +282,8 @@ export const page = defineType({
               name: "alt",
               title: "Texte alternatif",
               type: "string",
-              description: "Si l'image est informative (photo de contexte, équipe…), renseigner ce champ pour l'accessibilité.",
+              description:
+                "Si l'image est informative (photo de contexte, équipe…), renseigner ce champ pour l'accessibilité.",
             }),
           ],
           hidden: ({ parent }) => parent?.backgroundMode !== "image",
@@ -280,8 +307,16 @@ export const page = defineType({
           hidden: ({ parent }) => parent?.backgroundMode !== "image",
         }),
 
-        defineField({ name: "badgeEmoji", title: "Badge — Emoji (optionnel)", type: "string" }),
-        defineField({ name: "badgeText", title: "Badge — Texte (optionnel)", type: "string" }),
+        defineField({
+          name: "badgeEmoji",
+          title: "Badge — Emoji (optionnel)",
+          type: "string",
+        }),
+        defineField({
+          name: "badgeText",
+          title: "Badge — Texte (optionnel)",
+          type: "string",
+        }),
 
         defineField({
           name: "titleRich",
@@ -300,10 +335,29 @@ export const page = defineType({
           description: "Optionnel. Si absent, la description n'est pas affichée.",
         }),
 
-        defineField({ name: "primaryCtaLabel", title: "CTA primaire — label (optionnel)", type: "string" }),
-        defineField({ name: "primaryCtaHref", title: "CTA primaire — lien (optionnel)", type: "string", description: "Lien interne (ex : /contact) ou externe (ex : https://…)" }),
-        defineField({ name: "secondaryCtaLabel", title: "CTA secondaire — label (optionnel)", type: "string" }),
-        defineField({ name: "secondaryCtaHref", title: "CTA secondaire — lien (optionnel)", type: "string", description: "Lien interne (ex : /methode-orchestra) ou externe (ex : https://…)" }),
+        defineField({
+          name: "primaryCtaLabel",
+          title: "CTA primaire — label (optionnel)",
+          type: "string",
+        }),
+        defineField({
+          name: "primaryCtaHref",
+          title: "CTA primaire — lien (optionnel)",
+          type: "string",
+          description: "Lien interne (ex : /contact) ou externe (ex : https://…)",
+        }),
+        defineField({
+          name: "secondaryCtaLabel",
+          title: "CTA secondaire — label (optionnel)",
+          type: "string",
+        }),
+        defineField({
+          name: "secondaryCtaHref",
+          title: "CTA secondaire — lien (optionnel)",
+          type: "string",
+          description:
+            "Lien interne (ex : /methode-orchestra) ou externe (ex : https://…)",
+        }),
       ],
     }),
 
@@ -316,8 +370,18 @@ export const page = defineType({
       type: "object",
       fieldset: "finalCta",
       fields: [
-        defineField({ name: "titleRich", title: "Titre (rich)", type: "array", of: [richTextBlockInline] }),
-        defineField({ name: "textRich", title: "Texte (rich)", type: "array", of: [richTextBlockInline] }),
+        defineField({
+          name: "titleRich",
+          title: "Titre (rich)",
+          type: "array",
+          of: [richTextBlockInline],
+        }),
+        defineField({
+          name: "textRich",
+          title: "Texte (rich)",
+          type: "array",
+          of: [richTextBlockInline],
+        }),
         defineField({ name: "primaryLabel", title: "CTA primaire — label", type: "string" }),
         defineField({ name: "primaryHref", title: "CTA primaire — lien", type: "string" }),
         defineField({ name: "secondaryLabel", title: "CTA secondaire — label", type: "string" }),
@@ -340,7 +404,12 @@ export const page = defineType({
           type: "object",
           fields: [
             sectionTitleRichField,
-            defineField({ name: "content", title: "Texte (rich)", type: "array", of: [richTextBlockBody] }),
+            defineField({
+              name: "content",
+              title: "Texte (rich)",
+              type: "array",
+              of: [richTextBlockBody],
+            }),
           ],
         }),
 
@@ -350,7 +419,12 @@ export const page = defineType({
           type: "object",
           fields: [
             sectionTitleRichField,
-            defineField({ name: "content", title: "Texte (rich)", type: "array", of: [richTextBlockBody] }),
+            defineField({
+              name: "content",
+              title: "Texte (rich)",
+              type: "array",
+              of: [richTextBlockBody],
+            }),
             defineField({
               name: "pillars",
               title: "🧱 Piliers",
@@ -359,9 +433,22 @@ export const page = defineType({
                 {
                   type: "object",
                   fields: [
-                    defineField({ name: "icon", title: "Icône (optionnel)", type: "string" }),
-                    defineField({ name: "line1", title: "Ligne 1", type: "string", validation: (Rule) => Rule.required() }),
-                    defineField({ name: "line2", title: "Ligne 2 (optionnel)", type: "string" }),
+                    defineField({
+                      name: "icon",
+                      title: "Icône (optionnel)",
+                      type: "string",
+                    }),
+                    defineField({
+                      name: "line1",
+                      title: "Ligne 1",
+                      type: "string",
+                      validation: (Rule) => Rule.required(),
+                    }),
+                    defineField({
+                      name: "line2",
+                      title: "Ligne 2 (optionnel)",
+                      type: "string",
+                    }),
                   ],
                 },
               ],
@@ -376,7 +463,12 @@ export const page = defineType({
           type: "object",
           fields: [
             sectionTitleRichField,
-            defineField({ name: "intro", title: "Intro (rich)", type: "array", of: [richTextBlockInline] }),
+            defineField({
+              name: "intro",
+              title: "Intro (rich)",
+              type: "array",
+              of: [richTextBlockInline],
+            }),
             defineField({
               name: "cards",
               title: "🃏 Cartes",
@@ -385,15 +477,35 @@ export const page = defineType({
                 {
                   type: "object",
                   fields: [
-                    defineField({ name: "icon", title: "Icône (optionnel)", type: "string" }),
-                    defineField({ name: "title", title: "Titre", type: "string", validation: (Rule) => Rule.required() }),
-                    defineField({ name: "text", title: "Texte", type: "text", rows: 3, validation: (Rule) => Rule.required() }),
+                    defineField({
+                      name: "icon",
+                      title: "Icône (optionnel)",
+                      type: "string",
+                    }),
+                    defineField({
+                      name: "title",
+                      title: "Titre",
+                      type: "string",
+                      validation: (Rule) => Rule.required(),
+                    }),
+                    defineField({
+                      name: "text",
+                      title: "Texte",
+                      type: "text",
+                      rows: 3,
+                      validation: (Rule) => Rule.required(),
+                    }),
                   ],
                 },
               ],
               validation: (Rule) => Rule.max(6),
             }),
-            defineField({ name: "outro", title: "Texte final (rich)", type: "array", of: [richTextBlockInline] }),
+            defineField({
+              name: "outro",
+              title: "Texte final (rich)",
+              type: "array",
+              of: [richTextBlockInline],
+            }),
           ],
         }),
       ],
@@ -415,7 +527,12 @@ export const page = defineType({
           fields: [
             sectionTitleRichField,
             defineField({ name: "emoji", title: "Emoji (optionnel)", type: "string" }),
-            defineField({ name: "content", title: "Texte (rich)", type: "array", of: [richTextBlockBody] }),
+            defineField({
+              name: "content",
+              title: "Texte (rich)",
+              type: "array",
+              of: [richTextBlockBody],
+            }),
           ],
         }),
         defineField({
@@ -425,7 +542,12 @@ export const page = defineType({
           fields: [
             sectionTitleRichField,
             defineField({ name: "emoji", title: "Emoji (optionnel)", type: "string" }),
-            defineField({ name: "content", title: "Texte (rich)", type: "array", of: [richTextBlockBody] }),
+            defineField({
+              name: "content",
+              title: "Texte (rich)",
+              type: "array",
+              of: [richTextBlockBody],
+            }),
           ],
         }),
         defineField({
@@ -435,7 +557,12 @@ export const page = defineType({
           fields: [
             sectionTitleRichField,
             defineField({ name: "emoji", title: "Emoji (optionnel)", type: "string" }),
-            defineField({ name: "content", title: "Texte (rich)", type: "array", of: [richTextBlockBody] }),
+            defineField({
+              name: "content",
+              title: "Texte (rich)",
+              type: "array",
+              of: [richTextBlockBody],
+            }),
           ],
         }),
       ],
@@ -457,7 +584,12 @@ export const page = defineType({
           fields: [
             sectionTitleRichField,
             defineField({ name: "emoji", title: "Emoji (optionnel)", type: "string" }),
-            defineField({ name: "contentRich", title: "Texte (rich)", type: "array", of: [richTextBlockBody] }),
+            defineField({
+              name: "contentRich",
+              title: "Texte (rich)",
+              type: "array",
+              of: [richTextBlockBody],
+            }),
           ],
         }),
 
@@ -467,16 +599,34 @@ export const page = defineType({
           type: "object",
           fields: [
             sectionTitleRichField,
-            defineField({ name: "introRich", title: "Intro (rich)", type: "array", of: [richTextBlockBody] }),
+            defineField({
+              name: "introRich",
+              title: "Intro (rich)",
+              type: "array",
+              of: [richTextBlockBody],
+            }),
             defineField({ name: "label", title: "Label (optionnel)", type: "string" }),
             defineField({
               name: "pillars",
               title: "🃏 Piliers",
               type: "array",
-              of: [{ type: "object", fields: [defineField({ name: "icon", title: "Icône (optionnel)", type: "string" }), titleLinesField] }],
+              of: [
+                {
+                  type: "object",
+                  fields: [
+                    defineField({ name: "icon", title: "Icône (optionnel)", type: "string" }),
+                    titleLinesField,
+                  ],
+                },
+              ],
               validation: (Rule) => Rule.max(6),
             }),
-            defineField({ name: "outroRich", title: "Texte final (rich)", type: "array", of: [richTextBlockBody] }),
+            defineField({
+              name: "outroRich",
+              title: "Texte final (rich)",
+              type: "array",
+              of: [richTextBlockBody],
+            }),
           ],
         }),
 
@@ -486,7 +636,12 @@ export const page = defineType({
           type: "object",
           fields: [
             sectionTitleRichField,
-            defineField({ name: "introRich", title: "Intro (rich)", type: "array", of: [richTextBlockBody] }),
+            defineField({
+              name: "introRich",
+              title: "Intro (rich)",
+              type: "array",
+              of: [richTextBlockBody],
+            }),
             defineField({ name: "label", title: "Label (optionnel)", type: "string" }),
             defineField({
               name: "bubbles",
@@ -497,27 +652,68 @@ export const page = defineType({
                   name: "line1",
                   title: "Ligne 1",
                   type: "array",
-                  of: [{ type: "object", fields: [
-                    defineField({ name: "icon", title: "Icône (optionnel)", type: "string" }),
-                    defineField({ name: "title", title: "Titre", type: "string" }),
-                    defineField({ name: "text", title: "Texte", type: "text", rows: 4 }),
-                  ]}],
+                  of: [
+                    {
+                      type: "object",
+                      fields: [
+                        defineField({
+                          name: "icon",
+                          title: "Icône (optionnel)",
+                          type: "string",
+                        }),
+                        defineField({
+                          name: "title",
+                          title: "Titre",
+                          type: "string",
+                        }),
+                        defineField({
+                          name: "text",
+                          title: "Texte",
+                          type: "text",
+                          rows: 4,
+                        }),
+                      ],
+                    },
+                  ],
                   validation: (Rule) => Rule.max(4),
                 }),
                 defineField({
                   name: "line2",
                   title: "Ligne 2",
                   type: "array",
-                  of: [{ type: "object", fields: [
-                    defineField({ name: "icon", title: "Icône (optionnel)", type: "string" }),
-                    defineField({ name: "title", title: "Titre", type: "string" }),
-                    defineField({ name: "text", title: "Texte", type: "text", rows: 4 }),
-                  ]}],
+                  of: [
+                    {
+                      type: "object",
+                      fields: [
+                        defineField({
+                          name: "icon",
+                          title: "Icône (optionnel)",
+                          type: "string",
+                        }),
+                        defineField({
+                          name: "title",
+                          title: "Titre",
+                          type: "string",
+                        }),
+                        defineField({
+                          name: "text",
+                          title: "Texte",
+                          type: "text",
+                          rows: 4,
+                        }),
+                      ],
+                    },
+                  ],
                   validation: (Rule) => Rule.max(4),
                 }),
               ],
             }),
-            defineField({ name: "outroRich", title: "Texte final (rich)", type: "array", of: [richTextBlockBody] }),
+            defineField({
+              name: "outroRich",
+              title: "Texte final (rich)",
+              type: "array",
+              of: [richTextBlockBody],
+            }),
           ],
         }),
 
@@ -527,16 +723,34 @@ export const page = defineType({
           type: "object",
           fields: [
             sectionTitleRichField,
-            defineField({ name: "introRich", title: "Intro (rich)", type: "array", of: [richTextBlockBody] }),
+            defineField({
+              name: "introRich",
+              title: "Intro (rich)",
+              type: "array",
+              of: [richTextBlockBody],
+            }),
             defineField({ name: "label", title: "Label (optionnel)", type: "string" }),
             defineField({
               name: "cards",
               title: "🃏 Cartes",
               type: "array",
-              of: [{ type: "object", fields: [defineField({ name: "icon", title: "Icône (optionnel)", type: "string" }), titleLinesField] }],
+              of: [
+                {
+                  type: "object",
+                  fields: [
+                    defineField({ name: "icon", title: "Icône (optionnel)", type: "string" }),
+                    titleLinesField,
+                  ],
+                },
+              ],
               validation: (Rule) => Rule.max(6),
             }),
-            defineField({ name: "outroRich", title: "Texte final (rich)", type: "array", of: [richTextBlockBody] }),
+            defineField({
+              name: "outroRich",
+              title: "Texte final (rich)",
+              type: "array",
+              of: [richTextBlockBody],
+            }),
           ],
         }),
 
@@ -546,15 +760,33 @@ export const page = defineType({
           type: "object",
           fields: [
             sectionTitleRichField,
-            defineField({ name: "introRich", title: "Intro (rich)", type: "array", of: [richTextBlockBody] }),
+            defineField({
+              name: "introRich",
+              title: "Intro (rich)",
+              type: "array",
+              of: [richTextBlockBody],
+            }),
             defineField({
               name: "steps",
               title: "🃏 Étapes",
               type: "array",
-              of: [{ type: "object", fields: [defineField({ name: "icon", title: "Icône (optionnel)", type: "string" }), titleLinesField] }],
+              of: [
+                {
+                  type: "object",
+                  fields: [
+                    defineField({ name: "icon", title: "Icône (optionnel)", type: "string" }),
+                    titleLinesField,
+                  ],
+                },
+              ],
               validation: (Rule) => Rule.max(6),
             }),
-            defineField({ name: "outroRich", title: "Texte final (rich)", type: "array", of: [richTextBlockBody] }),
+            defineField({
+              name: "outroRich",
+              title: "Texte final (rich)",
+              type: "array",
+              of: [richTextBlockBody],
+            }),
           ],
         }),
 
@@ -564,12 +796,25 @@ export const page = defineType({
           type: "object",
           fields: [
             sectionTitleRichField,
-            defineField({ name: "introRich", title: "Intro (rich)", type: "array", of: [richTextBlockBody] }),
+            defineField({
+              name: "introRich",
+              title: "Intro (rich)",
+              type: "array",
+              of: [richTextBlockBody],
+            }),
             defineField({
               name: "cards",
               title: "🃏 Cartes",
               type: "array",
-              of: [{ type: "object", fields: [defineField({ name: "icon", title: "Icône (optionnel)", type: "string" }), titleLinesField] }],
+              of: [
+                {
+                  type: "object",
+                  fields: [
+                    defineField({ name: "icon", title: "Icône (optionnel)", type: "string" }),
+                    titleLinesField,
+                  ],
+                },
+              ],
               validation: (Rule) => Rule.max(6),
             }),
           ],
@@ -592,15 +837,33 @@ export const page = defineType({
           type: "object",
           fields: [
             sectionTitleRichField,
-            defineField({ name: "introRich", title: "Intro (rich)", type: "array", of: [richTextBlockBody] }),
+            defineField({
+              name: "introRich",
+              title: "Intro (rich)",
+              type: "array",
+              of: [richTextBlockBody],
+            }),
             defineField({
               name: "cards",
               title: "🃏 Cartes",
               type: "array",
-              of: [{ type: "object", fields: [defineField({ name: "icon", title: "Icône (optionnel)", type: "string" }), titleLinesField] }],
+              of: [
+                {
+                  type: "object",
+                  fields: [
+                    defineField({ name: "icon", title: "Icône (optionnel)", type: "string" }),
+                    titleLinesField,
+                  ],
+                },
+              ],
               validation: (Rule) => Rule.max(6),
             }),
-            defineField({ name: "outroRich", title: "Texte final (rich)", type: "array", of: [richTextBlockBody] }),
+            defineField({
+              name: "outroRich",
+              title: "Texte final (rich)",
+              type: "array",
+              of: [richTextBlockBody],
+            }),
           ],
         }),
 
@@ -610,7 +873,12 @@ export const page = defineType({
           type: "object",
           fields: [
             sectionTitleRichField,
-            defineField({ name: "introRich", title: "Intro (rich)", type: "array", of: [richTextBlockBody] }),
+            defineField({
+              name: "introRich",
+              title: "Intro (rich)",
+              type: "array",
+              of: [richTextBlockBody],
+            }),
             defineField({
               name: "steps",
               title: "🧩 Étapes",
@@ -629,10 +897,30 @@ export const page = defineType({
                       of: [{ type: "string" }],
                       validation: (Rule) => Rule.required().min(1).max(2),
                     }),
-                    defineField({ name: "topRich", title: "Bloc haut (rich) — optionnel", type: "array", of: [richTextBlockBody] }),
-                    defineField({ name: "labelRich", title: "Label (rich) — optionnel", type: "array", of: [richTextBlockInline] }),
-                    defineField({ name: "bottomRich", title: "Bloc bas (rich) — optionnel", type: "array", of: [richTextBlockBody] }),
-                    defineField({ name: "outroRich", title: "Outro (rich) — optionnel", type: "array", of: [richTextBlockBody] }),
+                    defineField({
+                      name: "topRich",
+                      title: "Bloc haut (rich) — optionnel",
+                      type: "array",
+                      of: [richTextBlockBody],
+                    }),
+                    defineField({
+                      name: "labelRich",
+                      title: "Label (rich) — optionnel",
+                      type: "array",
+                      of: [richTextBlockInline],
+                    }),
+                    defineField({
+                      name: "bottomRich",
+                      title: "Bloc bas (rich) — optionnel",
+                      type: "array",
+                      of: [richTextBlockBody],
+                    }),
+                    defineField({
+                      name: "outroRich",
+                      title: "Outro (rich) — optionnel",
+                      type: "array",
+                      of: [richTextBlockBody],
+                    }),
                   ],
                 },
               ],
@@ -647,13 +935,31 @@ export const page = defineType({
           type: "object",
           fields: [
             sectionTitleRichField,
-            defineField({ name: "introRich", title: "Intro (rich)", type: "array", of: [richTextBlockBody] }),
-            defineField({ name: "labelRich", title: "Label (rich) — optionnel", type: "array", of: [richTextBlockInline] }),
+            defineField({
+              name: "introRich",
+              title: "Intro (rich)",
+              type: "array",
+              of: [richTextBlockBody],
+            }),
+            defineField({
+              name: "labelRich",
+              title: "Label (rich) — optionnel",
+              type: "array",
+              of: [richTextBlockInline],
+            }),
             defineField({
               name: "cards",
               title: "🃏 Cartes",
               type: "array",
-              of: [{ type: "object", fields: [defineField({ name: "icon", title: "Icône (optionnel)", type: "string" }), titleLinesField] }],
+              of: [
+                {
+                  type: "object",
+                  fields: [
+                    defineField({ name: "icon", title: "Icône (optionnel)", type: "string" }),
+                    titleLinesField,
+                  ],
+                },
+              ],
               validation: (Rule) => Rule.max(6),
             }),
           ],
@@ -665,12 +971,25 @@ export const page = defineType({
           type: "object",
           fields: [
             sectionTitleRichField,
-            defineField({ name: "introRich", title: "Intro (rich)", type: "array", of: [richTextBlockBody] }),
+            defineField({
+              name: "introRich",
+              title: "Intro (rich)",
+              type: "array",
+              of: [richTextBlockBody],
+            }),
             defineField({
               name: "cards",
               title: "🃏 Cartes",
               type: "array",
-              of: [{ type: "object", fields: [defineField({ name: "icon", title: "Icône (optionnel)", type: "string" }), titleLinesField] }],
+              of: [
+                {
+                  type: "object",
+                  fields: [
+                    defineField({ name: "icon", title: "Icône (optionnel)", type: "string" }),
+                    titleLinesField,
+                  ],
+                },
+              ],
               validation: (Rule) => Rule.max(6),
             }),
           ],
@@ -693,7 +1012,12 @@ export const page = defineType({
           type: "object",
           fields: [
             sectionTitleRichField,
-            defineField({ name: "contentRich", title: "Contenu (rich)", type: "array", of: [richTextBlockBody] }),
+            defineField({
+              name: "contentRich",
+              title: "Contenu (rich)",
+              type: "array",
+              of: [richTextBlockBody],
+            }),
           ],
         }),
 
@@ -703,7 +1027,12 @@ export const page = defineType({
           type: "object",
           fields: [
             sectionTitleRichField,
-            defineField({ name: "introRich", title: "Intro (rich) — optionnel", type: "array", of: [richTextBlockBody] }),
+            defineField({
+              name: "introRich",
+              title: "Intro (rich) — optionnel",
+              type: "array",
+              of: [richTextBlockBody],
+            }),
             defineField({
               name: "cards",
               title: "🧩 Cartes",
@@ -722,10 +1051,30 @@ export const page = defineType({
                       of: [{ type: "string" }],
                       validation: (Rule) => Rule.required().min(1).max(2),
                     }),
-                    defineField({ name: "topRich", title: "Bloc haut (rich) — optionnel", type: "array", of: [richTextBlockBody] }),
-                    defineField({ name: "labelRich", title: "Label (rich) — optionnel", type: "array", of: [richTextBlockInline] }),
-                    defineField({ name: "bottomRich", title: "Bloc bas (rich) — optionnel", type: "array", of: [richTextBlockBody] }),
-                    defineField({ name: "outroRich", title: "Outro (rich) — optionnel", type: "array", of: [richTextBlockBody] }),
+                    defineField({
+                      name: "topRich",
+                      title: "Bloc haut (rich) — optionnel",
+                      type: "array",
+                      of: [richTextBlockBody],
+                    }),
+                    defineField({
+                      name: "labelRich",
+                      title: "Label (rich) — optionnel",
+                      type: "array",
+                      of: [richTextBlockInline],
+                    }),
+                    defineField({
+                      name: "bottomRich",
+                      title: "Bloc bas (rich) — optionnel",
+                      type: "array",
+                      of: [richTextBlockBody],
+                    }),
+                    defineField({
+                      name: "outroRich",
+                      title: "Outro (rich) — optionnel",
+                      type: "array",
+                      of: [richTextBlockBody],
+                    }),
                   ],
                 },
               ],
@@ -737,7 +1086,12 @@ export const page = defineType({
               type: "object",
               fields: [
                 defineField({ name: "title", title: "Titre (optionnel)", type: "string" }),
-                defineField({ name: "textRich", title: "Texte (rich)", type: "array", of: [richTextBlockBody] }),
+                defineField({
+                  name: "textRich",
+                  title: "Texte (rich)",
+                  type: "array",
+                  of: [richTextBlockBody],
+                }),
               ],
             }),
           ],
@@ -749,16 +1103,39 @@ export const page = defineType({
           type: "object",
           fields: [
             sectionTitleRichField,
-            defineField({ name: "introRich", title: "Intro (rich)", type: "array", of: [richTextBlockBody] }),
-            defineField({ name: "labelRich", title: "Label (rich) — optionnel", type: "array", of: [richTextBlockInline] }),
+            defineField({
+              name: "introRich",
+              title: "Intro (rich)",
+              type: "array",
+              of: [richTextBlockBody],
+            }),
+            defineField({
+              name: "labelRich",
+              title: "Label (rich) — optionnel",
+              type: "array",
+              of: [richTextBlockInline],
+            }),
             defineField({
               name: "cards",
               title: "🃏 Cartes",
               type: "array",
-              of: [{ type: "object", fields: [defineField({ name: "icon", title: "Icône (optionnel)", type: "string" }), titleLinesField] }],
+              of: [
+                {
+                  type: "object",
+                  fields: [
+                    defineField({ name: "icon", title: "Icône (optionnel)", type: "string" }),
+                    titleLinesField,
+                  ],
+                },
+              ],
               validation: (Rule) => Rule.max(6),
             }),
-            defineField({ name: "outroRich", title: "Outro (rich) — optionnel", type: "array", of: [richTextBlockBody] }),
+            defineField({
+              name: "outroRich",
+              title: "Outro (rich) — optionnel",
+              type: "array",
+              of: [richTextBlockBody],
+            }),
           ],
         }),
 
@@ -768,12 +1145,25 @@ export const page = defineType({
           type: "object",
           fields: [
             sectionTitleRichField,
-            defineField({ name: "labelRich", title: "Label (rich) — optionnel", type: "array", of: [richTextBlockInline] }),
+            defineField({
+              name: "labelRich",
+              title: "Label (rich) — optionnel",
+              type: "array",
+              of: [richTextBlockInline],
+            }),
             defineField({
               name: "cards",
               title: "🃏 Cartes",
               type: "array",
-              of: [{ type: "object", fields: [defineField({ name: "icon", title: "Icône (optionnel)", type: "string" }), titleLinesField] }],
+              of: [
+                {
+                  type: "object",
+                  fields: [
+                    defineField({ name: "icon", title: "Icône (optionnel)", type: "string" }),
+                    titleLinesField,
+                  ],
+                },
+              ],
               validation: (Rule) => Rule.max(6),
             }),
           ],
@@ -796,7 +1186,12 @@ export const page = defineType({
       fieldset: "faq",
       fields: [
         sectionTitleRichField,
-        defineField({ name: "introRich", title: "Intro (rich) — optionnel", type: "array", of: [richTextBlockBody] }),
+        defineField({
+          name: "introRich",
+          title: "Intro (rich) — optionnel",
+          type: "array",
+          of: [richTextBlockBody],
+        }),
         defineField({
           name: "items",
           title: "❓ Questions / réponses",
@@ -805,8 +1200,19 @@ export const page = defineType({
             {
               type: "object",
               fields: [
-                defineField({ name: "question", title: "Question", type: "string", validation: (Rule) => Rule.required().min(5) }),
-                defineField({ name: "answerRich", title: "Réponse (rich)", type: "array", of: [richTextBlockBody], validation: (Rule) => Rule.required().min(1) }),
+                defineField({
+                  name: "question",
+                  title: "Question",
+                  type: "string",
+                  validation: (Rule) => Rule.required().min(5),
+                }),
+                defineField({
+                  name: "answerRich",
+                  title: "Réponse (rich)",
+                  type: "array",
+                  of: [richTextBlockBody],
+                  validation: (Rule) => Rule.required().min(1),
+                }),
               ],
             },
           ],
@@ -818,8 +1224,18 @@ export const page = defineType({
           title: "🏷️ Bandeau conviction — optionnel",
           type: "object",
           fields: [
-            defineField({ name: "badgeEmoji", title: "Badge — Emoji (optionnel)", type: "string" }),
-            defineField({ name: "textRich", title: "Texte (rich)", type: "array", of: [richTextBlockBody], validation: (Rule) => Rule.required().min(1) }),
+            defineField({
+              name: "badgeEmoji",
+              title: "Badge — Emoji (optionnel)",
+              type: "string",
+            }),
+            defineField({
+              name: "textRich",
+              title: "Texte (rich)",
+              type: "array",
+              of: [richTextBlockBody],
+              validation: (Rule) => Rule.required().min(1),
+            }),
           ],
         }),
       ],
@@ -845,7 +1261,13 @@ export const page = defineType({
           type: "object",
           fields: [
             sectionTitleRichField,
-            defineField({ name: "textRich", title: "Texte (rich)", type: "array", of: [richTextBlockBody], validation: (Rule) => Rule.required().min(1) }),
+            defineField({
+              name: "textRich",
+              title: "Texte (rich)",
+              type: "array",
+              of: [richTextBlockBody],
+              validation: (Rule) => Rule.required().min(1),
+            }),
           ],
         }),
         defineField({
@@ -862,15 +1284,28 @@ export const page = defineType({
                 {
                   type: "object",
                   fields: [
-                    defineField({ name: "title", title: "Titre", type: "string", validation: (Rule) => Rule.required().min(3) }),
+                    defineField({
+                      name: "title",
+                      title: "Titre",
+                      type: "string",
+                      validation: (Rule) => Rule.required().min(3),
+                    }),
                   ],
                 },
               ],
               // ✅ EXCEPTION D : required intentionnel — section visuellement cassée sans cartes
               validation: (Rule) => Rule.required().min(1).max(6),
             }),
-            defineField({ name: "linkLabel", title: "Lien — label (optionnel)", type: "string" }),
-            defineField({ name: "linkHref", title: "Lien — href (optionnel)", type: "string" }),
+            defineField({
+              name: "linkLabel",
+              title: "Lien — label (optionnel)",
+              type: "string",
+            }),
+            defineField({
+              name: "linkHref",
+              title: "Lien — href (optionnel)",
+              type: "string",
+            }),
           ],
         }),
       ],
